@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Autobedrijf Dull – Planning</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:#0d0f11;color:#f4f5f7;font-family:Arial,Helvetica,sans-serif}
+body{min-height:100vh}
+button,input,select,textarea{font:inherit}
+header{background:#0b0c0e;border-bottom:1px solid #2d3136;position:sticky;top:0;z-index:20}
+.header{max-width:1250px;margin:auto;padding:12px 16px;display:flex;align-items:center;gap:18px}
+.logo{background:#202327;border-radius:12px;padding:7px 18px;text-align:center;min-width:92px}
+.logo small{display:block;font-size:11px;color:#d9dde1}.logo b{font:italic 31px Georgia,serif}
+nav{display:flex;gap:8px}.nav{border:1px solid #34393f;background:#24282c;color:#fff;border-radius:9px;padding:10px 15px;font-weight:700}.nav.active{background:#1976d2;border-color:#1976d2}
+main{max-width:1250px;margin:auto;padding:20px 16px 50px}.view{display:none}.view.active{display:block}
+.card{background:#181b1e;border:1px solid #353a40;border-radius:16px;padding:24px}
+h1{font-size:42px;margin:0 0 28px}h2{margin:0 0 16px;font-size:25px}
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:8px}.toolbar-left{min-width:0}.range{font-size:30px;color:#c9ccd0;margin-top:6px;white-space:nowrap}.controls{display:flex;gap:8px;flex-shrink:0}.controls button{border:1px solid #454a50;background:#24282c;color:#fff;border-radius:9px;padding:10px 14px;min-width:48px;cursor:pointer}.controls button:hover{background:#30353a}
+.agenda-wrap{overflow-x:auto;overflow-y:hidden;border:1px solid #30353a;border-radius:12px;margin-top:24px;-webkit-overflow-scrolling:touch}
+.agenda{display:grid;grid-template-columns:92px repeat(5,210px);min-width:1142px}
+.cell{border-right:1px solid #30353a;border-bottom:1px solid #30353a}.headcell{height:82px;background:#202328;text-align:center;padding:14px 6px;font-weight:700;font-size:21px}.headcell span{display:block;margin-top:7px;font-size:18px}.time{height:112px;background:#141618;color:#aeb3b9;font-size:20px;padding:18px 10px;text-align:center}.slot{height:112px;background:#0f1113;position:relative;padding:7px;cursor:pointer}.slot:hover{background:#171c21}.slot.has{background:#111d2a}
+.appt{display:block;background:#1976d2;border:1px solid #4b9bea;color:white;border-radius:9px;padding:10px;font-size:14px;font-weight:700;line-height:1.25;min-height:90px;cursor:pointer;overflow:hidden}.appt small{display:block;font-weight:400;margin-top:6px;opacity:.95}
+.hint{color:#9da3aa;font-size:14px;margin-top:10px}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}.stat{background:#141618;border:1px solid #33383e;border-radius:10px;padding:14px;font-size:16px}.stat strong{display:block;font-size:26px;margin-top:4px}
+.form-card{margin-top:18px}.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:0 16px}.field{margin-bottom:13px}.field.full{grid-column:1/-1}label{display:block;font-weight:700;font-size:16px;margin-bottom:6px}input,select,textarea{width:100%;border:1px solid #444a50;background:#25292d;color:#fff;border-radius:8px;padding:12px;outline:none}textarea{min-height:105px;resize:vertical}.primary{width:100%;background:#1976d2;color:#fff;border:0;border-radius:8px;padding:14px;font-weight:700;cursor:pointer}.msg{display:none;margin-top:10px;padding:10px;border-radius:8px}.msg.show{display:block}.ok{background:#16482b}.err{background:#5a2222}
+.table-card{margin-top:18px}.table-wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{padding:10px;border-bottom:1px solid #34383d;text-align:left}th{color:#aeb4ba}.print,.delete{border:1px solid #464b51;background:#262a2f;color:#fff;border-radius:7px;padding:7px;cursor:pointer}.empty{color:#9ca2a8}
+.mechanics{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}.mechanic{background:#141618;border:1px solid #373c42;border-radius:11px;color:#fff;padding:22px;text-align:left;cursor:pointer}.mechanic:hover{border-color:#1976d2}.mechanic h3{margin:0 0 5px}
+@media(max-width:800px){
+ .header{padding:10px 14px;flex-wrap:wrap}.header nav{width:100%;order:3}.nav{flex:1}
+ main{padding:16px 14px 40px}.card{padding:14px;border-radius:14px}h1{font-size:34px;margin-bottom:22px}h2{font-size:24px}
+ .toolbar{align-items:flex-start}.range{font-size:27px}.controls button{padding:9px 11px}
+ .agenda-wrap{margin-left:0;margin-right:0}.agenda{grid-template-columns:92px repeat(5,210px);min-width:1142px}.headcell{height:88px;font-size:20px}.time,.slot{height:116px}.time{font-size:18px;padding-top:18px}.slot{padding:7px}
+ .form-grid{grid-template-columns:1fr}.field.full{grid-column:auto}.stats{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header><div class="header"><div class="logo"><small>Autobedrijf</small><b>Dull</b></div><nav><button class="nav active" data-view="planning">📅 Planning</button><button class="nav" data-view="werkplaats">🔧 Werkplaats</button></nav></div></header>
+<main>
+<section id="planning" class="view active">
+  <div class="card form-card">
+    <h2>Nieuwe afspraak</h2>
+    <form id="appointmentForm" class="form-grid" novalidate>
+      <div class="field"><label>Datum</label><input id="date" type="date" min="2026-10-16" max="2027-02-28"></div>
+      <div class="field"><label>Tijd</label><input id="time" type="time" min="08:00" max="17:00" step="3600"></div>
+      <div class="field"><label>Naam klant</label><input id="name" placeholder="Naam klant"></div>
+      <div class="field"><label>Telefoon</label><input id="phone" type="tel" placeholder="Telefoonnummer"></div>
+      <div class="field"><label>Merk / model</label><input id="vehicle" placeholder="Bijv. Volkswagen Golf"></div>
+      <div class="field"><label>Kenteken</label><input id="plate" placeholder="AB-12-CD"></div>
+      <div class="field"><label>Monteur</label><select id="mechanic"><option value="">Kies monteur</option><option>Robert</option><option>Marco</option><option>Nils</option><option>Rein</option></select></div>
+      <div class="field full"><label>Werkzaamheden</label><textarea id="work" placeholder="Wat moet er gebeuren?"></textarea></div>
+      <div class="field full"><button type="submit" class="primary" id="add">Afspraak inplannen</button><div id="msg" class="msg"></div></div>
+    </form>
+  </div>
+
+  <div class="card">
+    <h1>Planning</h1>
+    <div class="toolbar">
+      <div class="toolbar-left"><div id="range" class="range">12 oktober – 16 oktober 2026</div></div>
+      <div class="controls"><button id="prev">←</button><button id="today">Vandaag</button><button id="next">→</button></div>
+    </div>
+    <div class="agenda-wrap"><div id="agenda" class="agenda"><div class="cell headcell">Tijd</div><div class="cell headcell">ma<span>12 okt</span></div><div class="cell headcell">di<span>13 okt</span></div><div class="cell headcell">wo<span>14 okt</span></div><div class="cell headcell">do<span>15 okt</span></div><div class="cell headcell">vr<span>16 okt</span></div><div class="cell time">08:00</div><div class="cell slot" data-date="2026-10-12" data-time="08:00"></div><div class="cell slot" data-date="2026-10-13" data-time="08:00"></div><div class="cell slot" data-date="2026-10-14" data-time="08:00"></div><div class="cell slot" data-date="2026-10-15" data-time="08:00"></div><div class="cell slot" data-date="2026-10-16" data-time="08:00"></div><div class="cell time">09:00</div><div class="cell slot" data-date="2026-10-12" data-time="09:00"></div><div class="cell slot" data-date="2026-10-13" data-time="09:00"></div><div class="cell slot" data-date="2026-10-14" data-time="09:00"></div><div class="cell slot" data-date="2026-10-15" data-time="09:00"></div><div class="cell slot" data-date="2026-10-16" data-time="09:00"></div><div class="cell time">10:00</div><div class="cell slot" data-date="2026-10-12" data-time="10:00"></div><div class="cell slot" data-date="2026-10-13" data-time="10:00"></div><div class="cell slot" data-date="2026-10-14" data-time="10:00"></div><div class="cell slot" data-date="2026-10-15" data-time="10:00"></div><div class="cell slot" data-date="2026-10-16" data-time="10:00"></div><div class="cell time">11:00</div><div class="cell slot" data-date="2026-10-12" data-time="11:00"></div><div class="cell slot" data-date="2026-10-13" data-time="11:00"></div><div class="cell slot" data-date="2026-10-14" data-time="11:00"></div><div class="cell slot" data-date="2026-10-15" data-time="11:00"></div><div class="cell slot" data-date="2026-10-16" data-time="11:00"></div><div class="cell time">12:00</div><div class="cell slot" data-date="2026-10-12" data-time="12:00"></div><div class="cell slot" data-date="2026-10-13" data-time="12:00"></div><div class="cell slot" data-date="2026-10-14" data-time="12:00"></div><div class="cell slot" data-date="2026-10-15" data-time="12:00"></div><div class="cell slot" data-date="2026-10-16" data-time="12:00"></div><div class="cell time">13:00</div><div class="cell slot" data-date="2026-10-12" data-time="13:00"></div><div class="cell slot" data-date="2026-10-13" data-time="13:00"></div><div class="cell slot" data-date="2026-10-14" data-time="13:00"></div><div class="cell slot" data-date="2026-10-15" data-time="13:00"></div><div class="cell slot" data-date="2026-10-16" data-time="13:00"></div><div class="cell time">14:00</div><div class="cell slot" data-date="2026-10-12" data-time="14:00"></div><div class="cell slot" data-date="2026-10-13" data-time="14:00"></div><div class="cell slot" data-date="2026-10-14" data-time="14:00"></div><div class="cell slot" data-date="2026-10-15" data-time="14:00"></div><div class="cell slot" data-date="2026-10-16" data-time="14:00"></div><div class="cell time">15:00</div><div class="cell slot" data-date="2026-10-12" data-time="15:00"></div><div class="cell slot" data-date="2026-10-13" data-time="15:00"></div><div class="cell slot" data-date="2026-10-14" data-time="15:00"></div><div class="cell slot" data-date="2026-10-15" data-time="15:00"></div><div class="cell slot" data-date="2026-10-16" data-time="15:00"></div><div class="cell time">16:00</div><div class="cell slot" data-date="2026-10-12" data-time="16:00"></div><div class="cell slot" data-date="2026-10-13" data-time="16:00"></div><div class="cell slot" data-date="2026-10-14" data-time="16:00"></div><div class="cell slot" data-date="2026-10-15" data-time="16:00"></div><div class="cell slot" data-date="2026-10-16" data-time="16:00"></div><div class="cell time">17:00</div><div class="cell slot" data-date="2026-10-12" data-time="17:00"></div><div class="cell slot" data-date="2026-10-13" data-time="17:00"></div><div class="cell slot" data-date="2026-10-14" data-time="17:00"></div><div class="cell slot" data-date="2026-10-15" data-time="17:00"></div><div class="cell slot" data-date="2026-10-16" data-time="17:00"></div></div></div>
+    <div class="hint">Tik op een leeg blok om direct datum en tijd in te vullen. Veeg horizontaal om de overige dagen te zien.</div>
+    <div class="stats"><div class="stat">Vandaag<strong id="sToday">0</strong></div><div class="stat">Gepland<strong id="sAll">0</strong></div><div class="stat">Deze week<strong id="sWeek">0</strong></div></div>
+  </div>
+
+  <div class="card table-card"><h2>Afspraken</h2><div class="table-wrap"><table><thead><tr><th>Datum</th><th>Tijd</th><th>Klant</th><th>Voertuig</th><th>Kenteken</th><th>Monteur</th><th>Werk</th><th></th></tr></thead><tbody id="rows"></tbody></table></div></div>
+</section>
+<section id="werkplaats" class="view"><div class="card"><h1>Werkplaats</h1><div class="mechanics"><button class="mechanic" data-m="Robert"><h3>Robert</h3>Planning bekijken</button><button class="mechanic" data-m="Marco"><h3>Marco</h3>Planning bekijken</button><button class="mechanic" data-m="Nils"><h3>Nils</h3>Planning bekijken</button><button class="mechanic" data-m="Rein"><h3>Rein</h3>Planning bekijken</button></div></div></section>
+</main>
+<script>
+const KEY='autobedrijf-dull-planning-v2',MIN='2026-10-16',MAX='2027-02-28';
+let appointments=[];
+try{const saved=localStorage.getItem(KEY);appointments=saved?JSON.parse(saved):[];}catch(e){appointments=[];}
+if(!Array.isArray(appointments))appointments=[];
+function saveAppointments(){try{localStorage.setItem(KEY,JSON.stringify(appointments));}catch(e){}}
+const $=id=>document.getElementById(id), pad=n=>String(n).padStart(2,'0');
+function dateObj(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function iso(d){return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate())}
+function monday(d){d=new Date(d);const day=d.getDay();d.setDate(d.getDate()-(day===0?6:day-1));d.setHours(0,0,0,0);return d}
+function esc(s){return String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let week=monday(dateObj(MIN));
+function clampWeek(){const first=monday(dateObj(MIN)),last=monday(dateObj('2027-02-22'));if(week<first)week=first;if(week>last)week=last}
+function render(){
+ clampWeek();
+ const days=[0,1,2,3,4].map(i=>{const x=new Date(week);x.setDate(x.getDate()+i);return x});
+ $('range').textContent=days[0].toLocaleDateString('nl-NL',{day:'numeric',month:'long'})+' – '+days[4].toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'});
+ let html='<div class="cell headcell">Tijd</div>';
+ days.forEach(x=>html+='<div class="cell headcell">'+x.toLocaleDateString('nl-NL',{weekday:'short'})+'<span>'+x.getDate()+' '+x.toLocaleDateString('nl-NL',{month:'short'})+'</span></div>');
+ for(let hr=8;hr<=17;hr++){
+   const time=pad(hr)+':00';html+='<div class="cell time">'+time+'</div>';
+   days.forEach(x=>{const ds=iso(x),list=appointments.filter(a=>a.date===ds&&a.time===time);html+='<div class="cell slot '+(list.length?'has':'')+'" data-date="'+ds+'" data-time="'+time+'">'+list.map(a=>'<div class="appt" data-id="'+a.id+'">'+esc(a.name)+'<small>'+esc(a.vehicle)+'<br>'+esc(a.mechanic)+'</small></div>').join('')+'</div>'});
+ }
+ $('agenda').innerHTML=html;
+ document.querySelectorAll('.slot').forEach(el=>el.addEventListener('click',e=>{if(e.target.closest('.appt'))return;$('date').value=el.dataset.date;$('time').value=el.dataset.time;$('name').focus();document.querySelector('.form-card').scrollIntoView({behavior:'smooth',block:'start'})}));
+ document.querySelectorAll('.appt').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();printOrder(el.dataset.id)}));
+ renderTable();
+ const today=iso(new Date()), weekDates=days.map(iso);$('sToday').textContent=appointments.filter(a=>a.date===today).length;$('sAll').textContent=appointments.length;$('sWeek').textContent=appointments.filter(a=>weekDates.includes(a.date)).length;
+}
+function renderTable(){
+ const sorted=appointments.slice().sort((a,b)=>(a.date+a.time).localeCompare(b.date+b.time));
+ $('rows').innerHTML=sorted.length?sorted.map(a=>'<tr><td>'+a.date.split('-').reverse().join('-')+'</td><td>'+esc(a.time)+'</td><td>'+esc(a.name)+'</td><td>'+esc(a.vehicle)+'</td><td>'+esc(a.plate)+'</td><td>'+esc(a.mechanic)+'</td><td>'+esc(a.work)+'</td><td><button class="print" data-id="'+a.id+'">🖨</button> <button class="delete" data-id="'+a.id+'">×</button></td></tr>').join(''):'<tr><td class="empty" colspan="8">Nog geen afspraken.</td></tr>';
+ document.querySelectorAll('.print').forEach(b=>b.onclick=()=>printOrder(b.dataset.id));document.querySelectorAll('.delete').forEach(b=>b.onclick=()=>{appointments=appointments.filter(a=>a.id!==b.dataset.id);saveAppointments();render()});
+}
+function message(text,ok){$('msg').textContent=text;$('msg').className='msg show '+(ok?'ok':'err');setTimeout(()=>$('msg').className='msg',3000)}
+function addAppointment(e){
+ e.preventDefault();
+ const a={id:String(Date.now())+'-'+Math.random().toString(36).slice(2),date:$('date').value,time:$('time').value,name:$('name').value.trim(),phone:$('phone').value.trim(),vehicle:$('vehicle').value.trim(),plate:$('plate').value.trim(),mechanic:$('mechanic').value,work:$('work').value.trim()};
+ if(!a.date)return message('Kies eerst een datum.',false);
+ if(a.date<MIN||a.date>MAX)return message('Kies een datum tussen 16 oktober 2026 en 28 februari 2027.',false);
+ if(!a.time)return message('Kies eerst een tijd.',false);
+ if(a.time<'08:00'||a.time>'17:00')return message('Kies een tijd tussen 08:00 en 17:00.',false);
+ if(!a.name)return message('Vul de klantnaam in.',false);
+ if(!a.mechanic)return message('Kies een monteur.',false);
+ if(!a.work)return message('Vul de werkzaamheden in.',false);
+ const conflict=appointments.some(x=>x.date===a.date&&x.time===a.time&&x.mechanic===a.mechanic);
+ if(conflict)return message('Deze monteur heeft op dit tijdstip al een afspraak.',false);
+ appointments.push(a);
+ saveAppointments();
+ week=monday(dateObj(a.date));
+ render();
+ message('✓ Afspraak ingepland in de agenda.',true);
+ ['name','phone','vehicle','plate','work'].forEach(id=>$(id).value='');
+ $('mechanic').value='';
+ window.scrollTo({top:0,behavior:'smooth'});
+}
+
+
+$('appointmentForm').addEventListener('submit', addAppointment);
+$('prev').onclick=()=>{week.setDate(week.getDate()-7);render()};$('next').onclick=()=>{week.setDate(week.getDate()+7);render()};$('today').onclick=()=>{week=monday(new Date());render()};
+document.querySelectorAll('.nav').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.view').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$(btn.dataset.view).classList.add('active')});
+document.querySelectorAll('.mechanic').forEach(btn=>btn.onclick=()=>{$('mechanic').value=btn.dataset.m;document.querySelector('[data-view="planning"]').click();document.querySelector('.form-card').scrollIntoView({behavior:'smooth'})});
+function printOrder(id){const a=appointments.find(x=>x.id===id);if(!a)return;const w=window.open('','_blank');if(!w)return;w.document.write('<!doctype html><html><head><title>Werkorder Autobedrijf Dull</title><style>body{font-family:Arial;padding:30px;color:#111}.top{border-bottom:4px solid #1976d2;padding-bottom:12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}.box{border:1px solid #ccc;padding:12px;border-radius:8px}.full{grid-column:1/-1}.km{font-size:18px;margin-top:10px}.work{min-height:120px;white-space:pre-wrap}@media(max-width:600px){.grid{grid-template-columns:1fr}.full{grid-column:auto}}@media print{button{display:none}}</style></head><body><button onclick="window.print()">Print</button><div class="top"><h1>Autobedrijf Dull</h1><b>WERKORDER</b></div><div class="grid"><div class="box"><b>Klant</b><br>'+esc(a.name)+'</div><div class="box"><b>Telefoon</b><br>'+esc(a.phone)+'</div><div class="box"><b>Voertuig</b><br>'+esc(a.vehicle)+'</div><div class="box"><b>Kenteken</b><br>'+esc(a.plate)+'</div><div class="box"><b>Monteur</b><br>'+esc(a.mechanic)+'</div><div class="box"><b>Datum / tijd</b><br>'+esc(a.date)+' '+esc(a.time)+'</div><div class="box full"><b>Kilometerstand</b><div class="km">____________________________ km</div></div><div class="box full"><b>Werkzaamheden</b><div class="work">'+esc(a.work)+'</div></div></div></body></html>');w.document.close();w.focus()}
+const now=iso(new Date());$('date').value=now>=MIN&&now<=MAX?now:MIN;$('time').value='08:00';render();
+</script>
+</body>
+</html>
