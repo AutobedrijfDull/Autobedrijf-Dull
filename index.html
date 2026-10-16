@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Autobedrijf Dull – Planning</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--blue:#1683ff;--blue2:#0d5fc4;--bg:#07111f;--card:#0d1b2d;--card2:#10243b;--line:#24415e;--text:#f4f8fc;--muted:#9db0c4;--danger:#ff5f6d;--ok:#2ed573}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;background:linear-gradient(180deg,#07111f,#091827);color:var(--text)}
+header{position:sticky;top:0;z-index:10;background:rgba(7,17,31,.96);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.wrap{max-width:1450px;margin:auto;padding:16px 18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{display:flex;align-items:center;gap:12px}.logo{width:46px;height:46px;border-radius:13px;background:linear-gradient(135deg,var(--blue),#42a5ff);display:grid;place-items:center;font-weight:900;font-size:22px}.brand h1{font-size:20px;margin:0}.brand p{margin:3px 0 0;color:var(--muted);font-size:13px}.status{font-size:13px;color:var(--muted);text-align:right}.status b{color:var(--ok)}
+nav{display:flex;gap:8px;margin-top:14px;overflow:auto}nav button{border:1px solid var(--line);background:#0b1829;color:var(--muted);padding:10px 15px;border-radius:10px;font-weight:700;white-space:nowrap}nav button.active{background:var(--blue);border-color:var(--blue);color:white}
+main{padding-bottom:40px}.grid{display:grid;grid-template-columns:350px minmax(0,1fr);gap:18px;margin-top:18px}.card{background:linear-gradient(180deg,var(--card),#0a1727);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:0 10px 35px #0004}.card h2{margin:0 0 14px;font-size:18px}.field{margin-bottom:11px}.field label{display:block;color:var(--muted);font-size:12px;margin:0 0 5px}.field input,.field select,.field textarea{width:100%;border:1px solid #2b4865;background:#071423;color:var(--text);border-radius:10px;padding:11px;font:inherit;outline:none}.field textarea{min-height:74px;resize:vertical}.row{display:grid;grid-template-columns:1fr 1fr;gap:9px}.btn{width:100%;border:0;border-radius:10px;padding:12px;font-weight:800;font-size:15px;background:var(--blue);color:white}.btn:disabled{opacity:.5}.btn.secondary{background:#152b43;border:1px solid var(--line)}
+.weekbar{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.weekbar h2{margin:0}.weekactions{display:flex;gap:7px}.weekactions button{border:1px solid var(--line);background:#10243a;color:white;border-radius:9px;padding:9px 11px}.scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px;background:#071321}.calendar{min-width:930px}.days{display:grid;grid-template-columns:80px repeat(5,minmax(160px,1fr));border-bottom:1px solid var(--line)}.days>div{padding:12px 8px;border-right:1px solid var(--line);text-align:center;font-weight:800}.days .date{color:var(--muted);font-size:12px;margin-top:3px}.body{display:grid;grid-template-columns:80px repeat(5,minmax(160px,1fr));height:720px;position:relative;background:repeating-linear-gradient(to bottom,transparent 0,transparent 59px,#1c334a 60px)}.times{border-right:1px solid var(--line)}.times div{height:60px;padding:5px 8px;color:var(--muted);font-size:12px}.col{position:relative;border-right:1px solid var(--line)}.slot{height:60px;border-bottom:1px solid #193049;cursor:pointer}.slot:hover{background:#123250}.appt{position:absolute;left:4px;right:4px;border-radius:8px;padding:6px 7px;overflow:hidden;color:#fff;background:linear-gradient(135deg,#147ef5,#0b5fbe);border:1px solid #69b1ff88;box-shadow:0 5px 12px #0006;cursor:pointer}.appt strong{display:block;font-size:12px}.appt span{display:block;font-size:11px;color:#d9ebff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.empty{text-align:center;padding:35px;color:var(--muted)}
+.section{margin-top:18px}.tablewrap{overflow:auto}.appttable{width:100%;border-collapse:collapse;min-width:850px}.appttable th,.appttable td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:13px}.appttable th{color:var(--muted);font-weight:700}.danger{background:#351923!important;border-color:#74303d!important;color:#ffadb5!important}.workshop{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.person{padding:16px;border:1px solid var(--line);border-radius:14px;background:#0b192a}.person b{font-size:18px}.person p{color:var(--muted);margin:7px 0 0;font-size:13px}.hidden{display:none}.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:#10243a;border:1px solid var(--line);padding:12px 16px;border-radius:10px;display:none;z-index:30}.toast.show{display:block}
+@media(max-width:850px){.grid{grid-template-columns:1fr}.workshop{grid-template-columns:1fr 1fr}.status{display:none}.wrap{padding:12px}.calendar{min-width:900px}.card{padding:13px}}
+@media(max-width:500px){.row{grid-template-columns:1fr}.workshop{grid-template-columns:1fr}.brand h1{font-size:18px}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="top"><div class="brand"><div class="logo">D</div><div><h1>Autobedrijf Dull</h1><p>Planning & Werkplaats</p></div></div><div class="status" id="status">Verbinden…</div></div><nav><button class="active" data-tab="planning">Planning</button><button data-tab="werkplaats">Werkplaats</button></nav></div></header>
+<main class="wrap">
+<section id="planning">
+<div class="grid">
+<div class="card"><h2>Afspraak inplannen</h2>
+<div class="row"><div class="field"><label>Datum</label><input id="datum" type="date" min="2026-10-16" max="2027-02-28"></div><div class="field"><label>Starttijd</label><select id="start"></select></div></div>
+<div class="row"><div class="field"><label>Naam klant</label><input id="naam" placeholder="Bijv. Jan de Vries"></div><div class="field"><label>Telefoon</label><input id="telefoon" inputmode="tel" placeholder="06-12345678"></div></div>
+<div class="row"><div class="field"><label>Auto / model</label><input id="auto" placeholder="Bijv. BMW 3-serie"></div><div class="field"><label>Kenteken</label><input id="kenteken" placeholder="12-AB-34"></div></div>
+<div class="row"><div class="field"><label>Monteur</label><select id="monteur"><option>Robert</option><option>Marco</option><option>Nils</option><option>Rein</option></select></div><div class="field"><label>Duur</label><select id="duur"><option value="60">1 uur</option><option value="120">2 uur</option><option value="180">3 uur</option><option value="240">4 uur</option></select></div></div>
+<div class="field"><label>Werkzaamheden</label><textarea id="werk" placeholder="Bijv. APK + onderhoud"></textarea></div>
+<button class="btn" id="save">Afspraak inplannen</button>
+</div>
+<div class="card"><div class="weekbar"><h2>Weekplanning</h2><div class="weekactions"><button id="prev">‹</button><button id="today">Vandaag</button><button id="next">›</button></div></div><div id="weeklabel" style="color:var(--muted);margin-bottom:10px"></div><div class="scroll"><div class="calendar"><div class="days" id="days"></div><div class="body" id="body"></div></div></div></div>
+</div>
+<div class="card section"><h2>Geplande afspraken</h2><div class="tablewrap"><table class="appttable"><thead><tr><th>Datum</th><th>Tijd</th><th>Klant</th><th>Auto</th><th>Kenteken</th><th>Monteur</th><th>Werk</th><th></th></tr></thead><tbody id="rows"></tbody></table></div><div id="empty" class="empty">Nog geen afspraken.</div></div>
+</section>
+<section id="werkplaats" class="hidden"><div class="card"><h2>Werkplaats</h2><div class="workshop"><div class="person"><b>Robert</b><p>Monteur</p></div><div class="person"><b>Marco</b><p>Monteur</p></div><div class="person"><b>Nils</b><p>Monteur</p></div><div class="person"><b>Rein</b><p>Monteur</p></div></div></div></section>
+</main><div class="toast" id="toast"></div>
+<script>
+const SUPABASE_URL='https://xnbtlbohbwlbfwuvrunx.supabase.co';
+const SUPABASE_KEY='sb_publishable_Fo6AXfLJG392HGGa38t7zw_v9IMhSrw';
+const db=supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const MIN='2026-10-16',MAX='2027-02-28';
+const $=id=>document.getElementById(id); const pad=n=>String(n).padStart(2,'0');
+const times=[]; for(let h=8;h<=16;h++) times.push(`${pad(h)}:00`);
+$('start').innerHTML=times.map(t=>`<option>${t}</option>`).join('');
+function iso(d){return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`}
+function parse(s){const [y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)}
+function monday(d){let x=new Date(d);let n=x.getDay();let diff=n===0?-6:1-n;x.setDate(x.getDate()+diff);x.setHours(0,0,0,0);return x}
+let week=monday(parse(MIN));
+const todayReal=new Date(); if(iso(todayReal)>=MIN&&iso(todayReal)<=MAX) week=monday(todayReal); $('datum').value=iso(todayReal)>=MIN&&iso(todayReal)<=MAX?iso(todayReal):MIN;
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');setTimeout(()=>$('toast').classList.remove('show'),2600)}
+function dateDays(){return [0,1,2,3,4].map(i=>{let d=new Date(week);d.setDate(d.getDate()+i);return d})}
+async function load(){ $('status').innerHTML='Verbinden…'; const {data,error}=await db.from('afspraken').select('*').order('datum').order('begintijd'); if(error){$('status').innerHTML='<b style="color:#ff8b96">Database fout</b>';console.error(error);toast('Databasefout: '+error.message);return} $('status').innerHTML='<b>● Online</b>'; render(data||[])}
+function render(list){
+ const ds=dateDays(); $('weeklabel').textContent=`${ds[0].toLocaleDateString('nl-NL',{day:'numeric',month:'long'})} – ${ds[4].toLocaleDateString('nl-NL',{day:'numeric',month:'long',year:'numeric'})}`;
+ $('days').innerHTML='<div></div>'+ds.map(d=>`<div>${d.toLocaleDateString('nl-NL',{weekday:'long'}).replace(/^./,x=>x.toUpperCase())}<div class="date">${d.toLocaleDateString('nl-NL',{day:'2-digit',month:'2-digit'})}</div></div>`).join('');
+ let html='<div class="times">'+times.map(t=>`<div>${t}</div>`).join('')+'</div>'+ds.map(d=>{const date=iso(d);let s='<div class="col">';for(let i=0;i<9;i++){let h=8+i;s+=`<div class="slot" data-date="${date}" data-time="${pad(h)}:00"></div>`} list.filter(a=>a.datum===date).forEach(a=>{const st=a.begintijd.slice(0,5);const en=a.eindtijd.slice(0,5);const [hh,mm]=st.split(':').map(Number);const [eh,em]=en.split(':').map(Number);const top=((hh-8)*60+mm);const height=Math.max(58,(eh*60+em-hh*60-mm)-4);s+=`<div class="appt" style="top:${top}px;height:${height}px" data-id="${a.id}"><strong>${st} ${escapeHtml(a.naam)}</strong><span>${escapeHtml(a.monteur)} · ${escapeHtml(a.kenteken||'')}</span><span>${escapeHtml(a.werkzaamheden||'')}</span></div>`});return s+'</div>'}).join('');
+ $('body').innerHTML=html;
+ document.querySelectorAll('.slot').forEach(el=>el.onclick=()=>{$('datum').value=el.dataset.date;$('start').value=el.dataset.time;$('naam').focus();window.scrollTo({top:0,behavior:'smooth'})});
+ document.querySelectorAll('.appt').forEach(el=>el.onclick=async e=>{e.stopPropagation(); if(confirm('Deze afspraak verwijderen?')){const {error}=await db.from('afspraken').delete().eq('id',el.dataset.id);if(error) toast(error.message);else {toast('Afspraak verwijderd');load()}}});
+ const rows=$('rows'); rows.innerHTML=list.length?list.map(a=>`<tr><td>${a.datum}</td><td>${a.begintijd.slice(0,5)}–${a.eindtijd.slice(0,5)}</td><td>${escapeHtml(a.naam)}<br><small>${escapeHtml(a.telefoon||'')}</small></td><td>${escapeHtml(a.voertuig||'')}</td><td>${escapeHtml(a.kenteken||'')}</td><td>${escapeHtml(a.monteur)}</td><td>${escapeHtml(a.werkzaamheden||'')}</td><td><button class="danger" onclick="removeAppt(${a.id})">Verwijder</button></td></tr>`).join(''):''; $('empty').style.display=list.length?'none':'block';
+}
+function escapeHtml(x){return String(x??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
+window.removeAppt=async id=>{if(!confirm('Deze afspraak verwijderen?'))return;const {error}=await db.from('afspraken').delete().eq('id',id);if(error)toast(error.message);else{toast('Afspraak verwijderd');load()}};
+$('save').onclick=async()=>{const date=$('datum').value,start=$('start').value,name=$('naam').value.trim();if(!date||!start||!name){toast('Vul datum, tijd en naam in.');return}const dur=Number($('duur').value);const [h,m]=start.split(':').map(Number);const endM=h*60+m+dur;const eind=`${pad(Math.floor(endM/60))}:${pad(endM%60)}:00`;if(endM>17*60){toast('Deze afspraak loopt na 17:00.');return}const {error}=await db.from('afspraken').insert({datum:date,begintijd:start+':00',eindtijd:eind,naam:name,telefoon:$('telefoon').value.trim(),voertuig:$('auto').value.trim(),kenteken:$('kenteken').value.trim().toUpperCase(),monteur:$('monteur').value,werkzaamheden:$('werk').value.trim()});if(error){toast('Opslaan mislukt: '+error.message);return}toast('Afspraak ingepland!');$('naam').value='';$('telefoon').value='';$('auto').value='';$('kenteken').value='';$('werk').value='';load()};
+$('prev').onclick=()=>{week.setDate(week.getDate()-7); if(iso(week)<MIN)week=monday(parse(MIN));load()}; $('next').onclick=()=>{const n=new Date(week);n.setDate(n.getDate()+7);if(iso(n)>MAX) return toast('Dit is de laatste week.');week=n;load()}; $('today').onclick=()=>{const d=new Date();week=(iso(d)>=MIN&&iso(d)<=MAX)?monday(d):monday(parse(MIN));load()};
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('main section').forEach(x=>x.classList.add('hidden'));$(b.dataset.tab).classList.remove('hidden')});
+load();
+</script></body></html>
